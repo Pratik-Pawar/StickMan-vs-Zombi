@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *Changed Zombi
  */
 package GameEntity;
 
@@ -20,7 +18,7 @@ import mainComponent.Key;
  * @author Administrator
  */
 public class Zombi extends MovingObject {
-    
+
     private DirectionalAnimation fighting, hurting, currAnima;
     private ZWalking walking;
     private HitBox faceHB, fullBodyHB, pushHB, handHB;
@@ -39,10 +37,10 @@ public class Zombi extends MovingObject {
     private int min = 180, max = 900;
     private HealthBar health;
     private int healthRX, healthLX;
-    
+
     public Zombi(Direction direction, float x, float y, StickMan stickMan) {
         super(1f, direction, x, y, ZOMBI);
-        
+
         this.stickMan = stickMan;
         objNo = ++objCount;
         walking = new ZWalking(direction);
@@ -52,17 +50,18 @@ public class Zombi extends MovingObject {
         changeDireCount = 0;
         changeDireTarget = rand.nextInt(max - min) + min;
         currAnima = walking;
-        
+
         if (getDirection() == Direction.LEFT) {
             currState = State.WALK_LEFT;
+
         } else if (getDirection() == Direction.RIGHT) {
             currState = State.WALK_RIGHT;
         }
-        
+
         setX(x);
         setY(y);
         setSpeed(1.0f);
-        
+
         SliderControl.createAndShow("ST_PUSH_FORCE", ST_PUSH_FORCE, 0, 2, 0.1f).
                 SetChangeListener((source, newValue) -> {
                     ST_PUSH_FORCE = newValue;
@@ -71,10 +70,10 @@ public class Zombi extends MovingObject {
                 .SetChangeListener((SliderControl source, float newValue) -> {
                     setSpeed(newValue);
                 });
-        
+
         setWidth(walking.getWidth());
         setHeight(walking.getHeight());
-        
+
         health = new HealthBar(127, 17, 76, 7,
                 1.5f, 100, Color.green);
         healthRX = health.getIntX();
@@ -82,14 +81,14 @@ public class Zombi extends MovingObject {
         if (getDirection() == Direction.LEFT) {
             health.setX(healthLX);
         }
-        
+
         initHitBox();
         xControl = SliderControl.createAndShow("Zombi x:", getIntX(), -200, 1000, 1);
         xControl.SetChangeListener((source, newValue) -> {
             setX(newValue);
         });
     }
-    
+
     @Override
     public void setX(float x) {
         super.setX(x);
@@ -97,7 +96,7 @@ public class Zombi extends MovingObject {
             xControl.setValue(getIntX());
         }
     }
-    
+
     @Override
     public void setSpeed(float speed) {
         this.speed = speed;
@@ -106,24 +105,24 @@ public class Zombi extends MovingObject {
         fighting.setAnimeSpeed(speed);
         hurting.setAnimeSpeed(speed);
     }
-    
+
     private void initHitBox() {
-        
+
         faceHB = new HitBox("Face", 127, 32, 71, 56, this);
         fullBodyHB = new HitBox("Full_Body", 72, 32, 136, 195, this);
         pushHB = new HitBox("Push", 108, 32, 87, 195, this);
         handHB = new HitBox("Hand", 151, 23, 64, 133, this);
-        
+
         fullBodyHB.setTrigger((collider) -> {
             if (collider.getOwner().getId() == ID.SOLID) {
-                
+
                 Direction d = fullBodyHB.getDireRelativeTo(collider);
                 if (d == Direction.RIGHT) {
                     setX(collider.getGlobalX_() - fullBodyHB.getX());
                 } else if (d == Direction.LEFT) {
                     setX(collider.getGlobalX() - fullBodyHB.getX_());
                 }
-                
+
                 if (currState == State.WALK_LEFT || currState == State.WALK_RIGHT) {
                     if (d == Direction.LEFT) {
                         currState = State.WALK_LEFT;
@@ -132,9 +131,9 @@ public class Zombi extends MovingObject {
                     }
                 }
             }
-            
+
         });
-        
+
         faceHB.setTrigger((collider) -> {
             if (collider.getOwner().getId() == ID.STICK_MAN) {
                 if (collider.getName().equals("Hand")) {
@@ -153,7 +152,7 @@ public class Zombi extends MovingObject {
             if (collider.getOwner().getId() == ID.STICK_MAN) {
                 if (collider.getName().equals("Full_Body")) {
                     fightReq = true;
-                    
+
                 }
                 if (collider.getName().equals("Push")) {
                     Direction d = pushHB.getDireRelativeTo(collider);
@@ -163,18 +162,18 @@ public class Zombi extends MovingObject {
                     } else if (d == d.RIGHT) {
                         int diff = collider.getGlobalX_() - pushHB.getGlobalX();
                         setX(getX() + diff * ST_PUSH_FORCE);
-                        
+
                     }
-                    
+
                 }
             }
         });
-        
+
         getHitBoxList().add(faceHB);
         getHitBoxList().add(fullBodyHB);
         getHitBoxList().add(pushHB);
     }
-    
+
     @Override
     public void setDirection(Direction newDirection) {
         if (getDirection() != newDirection) {
@@ -183,27 +182,27 @@ public class Zombi extends MovingObject {
             handHB.setDirection(newDirection);
             pushHB.setDirection(newDirection);
             fullBodyHB.setDirection(newDirection);
-            
+
             walking.setDirection(newDirection);
             fighting.setDirection(newDirection);
             hurting.setDirection(newDirection);
-            
+
             if (getDirection() == Direction.LEFT) {
                 health.setX(healthLX);
             } else if (getDirection() == Direction.RIGHT) {
                 health.setX(healthRX);
             }
         }
-        
+
     }
-    
+
     @Override
     public void render(Graphics g) {
         g.drawImage(currAnima.getFrame(), getIntX(), getIntY(), null);
         health.render(g, getIntX(), getIntY());
-        
+
     }
-    
+
     private State getNextState() {
         if (hurtReq || Key.ctrl) {
             return State.HURT;
@@ -213,33 +212,33 @@ public class Zombi extends MovingObject {
         }
         return currState;
     }
-    
+
     @Override
     public void update() {
         State nextState = getNextState();
         switch (currState) {
             case WALK_RIGHT:
                 changeDireCount++;
-                
+
                 if (nextState != State.WALK_RIGHT) {
                     setCurrState(nextState);
                 } else {
-                    
+
                     if (changeDireCount >= changeDireTarget) {
-                        
+
                         setCurrState(State.WALK_LEFT);
-                        
+
                         changeDireCount = 0;
                         changeDireTarget = rand.nextInt(max - min) + min;
                     }
-                    
+
                     setX(getX() + motationSpeed);
                     setDirection(Direction.RIGHT);
                     walking.goNext();
                 }
-                
+
                 break;
-            
+
             case WALK_LEFT:
                 changeDireCount++;
                 if (nextState != State.WALK_LEFT) {
@@ -255,7 +254,7 @@ public class Zombi extends MovingObject {
                     walking.goNext();
                 }
                 break;
-            
+
             case HURT:
                 hurting.goNext();
                 if (getDirection() == Direction.RIGHT) {
@@ -263,33 +262,33 @@ public class Zombi extends MovingObject {
                 } else if (getDirection() == Direction.LEFT) {
                     setX(initX - hurtMotion[hurting.getIntFNo()]);
                 }
-                
+
                 if (hurting.isFinshed()) {
                     if (getDirection() == Direction.RIGHT) {
                         setX(initX + hurtMotion[hurtMotion.length - 1]);
                     } else if (getDirection() == Direction.LEFT) {
                         setX(initX - hurtMotion[hurtMotion.length - 1]);
                     }
-                    
+
                     hurtReq = false;
                     fightReq = false;
-                    
+
                     if (getDirection() == Direction.RIGHT) {
                         setCurrState(State.WALK_RIGHT);
-                        
+
                     } else if (getDirection() == Direction.LEFT) {
                         setCurrState(State.WALK_LEFT);
-                        
+
                     }
                 }
                 break;
-            
+
             case FIGHT:
                 fighting.goNext();
                 Direction d = getDirection();
                 int FNo = fighting.getIntFNo();
                 if (6 <= FNo && FNo <= 9) {
-                    
+
                     if (!attcking) {
                         attcking = true;
                         getHitBoxList().add(handHB);
@@ -303,32 +302,32 @@ public class Zombi extends MovingObject {
                 } else if (d == Direction.LEFT) {
                     setX(initX - fightMotion[fighting.getIntFNo()]);
                 }
-                
+
                 if (nextState == State.HURT) {
                     fightReq = false;
                     getHitBoxList().remove(handHB);
                     setCurrState(nextState);
                 } else if (fighting.isFinshed()) {
-                    
+
                     fightReq = false;
                     getHitBoxList().remove(handHB);
-                    
+
                     if (getDirection() == Direction.LEFT) {
                         setCurrState(State.WALK_LEFT);
                     } else if (getDirection() == Direction.RIGHT) {
                         setCurrState(State.WALK_RIGHT);
                     }
                 }
-                
+
                 break;
         }
-        
+
     }
-    
+
     public State getCurrState() {
         return currState;
     }
-    
+
     private void setCurrState(State state) {
         switch (state) {
             case HURT:
@@ -345,35 +344,35 @@ public class Zombi extends MovingObject {
                 initX = getX();
                 currAnima = fighting;
                 break;
-            
+
             case WALK_LEFT:
             case WALK_RIGHT:
                 currAnima = walking;
                 break;
-            
+
         }
         currAnima.reset();
         currState = state;
-        
+
     }
-    
+
     public int getCenterX() {
         return fullBodyHB.getGlobalCenterX();
     }
-    
+
     public int getCenterY() {
         return fullBodyHB.getGlobalCenterY();
     }
-    
+
     @Override
     public String toString() {
         return "Zombi #" + objNo;
     }
-    
+
     public static enum State {
         WALK_LEFT, WALK_RIGHT,
         FIGHT, HURT
-        
+
     }
-    
+
 }
