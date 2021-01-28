@@ -10,9 +10,9 @@ import mainComponent.Controls.SliderControl;
 import mainComponent.Key;
 
 /**
- * -
  *
- * @author Administrator test 3x
+ *
+ * @author Administrator
  */
 public class Zombi extends MovingObject {
 
