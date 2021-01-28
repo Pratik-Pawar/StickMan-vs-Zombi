@@ -7,8 +7,9 @@ package GameEntity;
 
 /**
  *
- * @author Administrator
+ * @author prati
  */
-public enum Direction {
-    LEFT, RIGHT
+public interface AfterDeath {
+
+    public void afterDeath(GameObject self);
 }

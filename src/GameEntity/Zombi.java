@@ -1,11 +1,11 @@
 /*
- *ReChanged Zombi
-test
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package GameEntity;
 
 import GameEntity.Animations.DirectionalAnimation;
-import GameEntity.Animations.ZWalking;
 import static GameEntity.ID.ZOMBI;
 import GameEntity.collisionDetection.HitBox;
 import java.awt.Color;
@@ -20,11 +20,10 @@ import mainComponent.Key;
  */
 public class Zombi extends MovingObject {
 
-    private DirectionalAnimation fighting, hurting, currAnima;
-    private ZWalking walking;
+    private DirectionalAnimation walking, fighting, hurting, death, currAnima;
     private HitBox faceHB, fullBodyHB, pushHB, handHB;
     private State currState;
-    private boolean hurtReq = false, fightReq = false, attcking = false;
+    private boolean hurtReq = false, fightReq = false, attcking = false, deathReq = false;
     private static int objCount = 0;
     private SliderControl xControl;
     private static int hurtMotion[] = {-0, -19, -35, -39, -43, -47, -50, -53, -56, -53, -61, -63, -63, -58, -53, -48, -44, -40, -40};
@@ -36,17 +35,31 @@ public class Zombi extends MovingObject {
     private Random rand;
     private int changeDireCount, changeDireTarget;
     private int min = 180, max = 900;
+    private static final int DAMAGE = 25;
+    private float dMotionSpeed1 = 3.0f;
+    private float dMotionSpeed2 = 0.3f;
+    private AfterDeath afterDeath;
     private HealthBar health;
     private int healthRX, healthLX;
 
     public Zombi(Direction direction, float x, float y, StickMan stickMan) {
         super(1f, direction, x, y, ZOMBI);
 
+        SliderControl.createAndShow("Z D1", dMotionSpeed1, 0.1f, 10f, 0.2f)
+                .SetChangeListener((source, newValue) -> {
+                    dMotionSpeed1 = newValue;
+                });
+        SliderControl.createAndShow("Z D2", dMotionSpeed2, -5f, 10f, 0.1f)
+                .SetChangeListener((source, newValue) -> {
+                    dMotionSpeed2 = newValue;
+                });
+
         this.stickMan = stickMan;
         objNo = ++objCount;
-        walking = new ZWalking(direction);
+        walking = new DirectionalAnimation(0.27f, "/Animaction/", "Z Walking", 25, direction);
         fighting = new DirectionalAnimation(0.3f, "/Animaction/", "Z Fighting", 20, direction);
         hurting = new DirectionalAnimation(0.4f, "/Animaction/", "Z Hurt", 19, direction);
+        death = new DirectionalAnimation(0.4f, "/Animaction/", "Z Death", 29, direction);
         rand = new Random(objNo);
         changeDireCount = 0;
         changeDireTarget = rand.nextInt(max - min) + min;
@@ -54,7 +67,6 @@ public class Zombi extends MovingObject {
 
         if (getDirection() == Direction.LEFT) {
             currState = State.WALK_LEFT;
-
         } else if (getDirection() == Direction.RIGHT) {
             currState = State.WALK_RIGHT;
         }
@@ -88,6 +100,10 @@ public class Zombi extends MovingObject {
         xControl.SetChangeListener((source, newValue) -> {
             setX(newValue);
         });
+    }
+
+    public void setAfterDeath(AfterDeath afterDeath) {
+        this.afterDeath = afterDeath;
     }
 
     @Override
@@ -138,7 +154,13 @@ public class Zombi extends MovingObject {
         faceHB.setTrigger((collider) -> {
             if (collider.getOwner().getId() == ID.STICK_MAN) {
                 if (collider.getName().equals("Hand")) {
-                    hurtReq = true;
+
+                    health.setValue(health.getValue() - DAMAGE);
+                    if (health.isDead()) {
+                        deathReq = true;
+                    } else {
+                        hurtReq = true;
+                    }
                     Direction d = ((StickMan) collider.getOwner()).getDirection();
                     if (d == Direction.LEFT) {
                         setDirection(Direction.RIGHT);
@@ -153,7 +175,6 @@ public class Zombi extends MovingObject {
             if (collider.getOwner().getId() == ID.STICK_MAN) {
                 if (collider.getName().equals("Full_Body")) {
                     fightReq = true;
-
                 }
                 if (collider.getName().equals("Push")) {
                     Direction d = pushHB.getDireRelativeTo(collider);
@@ -187,6 +208,7 @@ public class Zombi extends MovingObject {
             walking.setDirection(newDirection);
             fighting.setDirection(newDirection);
             hurting.setDirection(newDirection);
+            death.setDirection(newDirection);
 
             if (getDirection() == Direction.LEFT) {
                 health.setX(healthLX);
@@ -205,9 +227,13 @@ public class Zombi extends MovingObject {
     }
 
     private State getNextState() {
+        if (deathReq || Key.shift) {
+            return State.DEATH;
+        }
         if (hurtReq || Key.ctrl) {
             return State.HURT;
         }
+
         if (fightReq || Key.alt) {
             return State.FIGHT;
         }
@@ -265,11 +291,14 @@ public class Zombi extends MovingObject {
                 }
 
                 if (hurting.isFinshed()) {
+
                     if (getDirection() == Direction.RIGHT) {
                         setX(initX + hurtMotion[hurtMotion.length - 1]);
                     } else if (getDirection() == Direction.LEFT) {
                         setX(initX - hurtMotion[hurtMotion.length - 1]);
                     }
+
+                    getHitBoxList().add(faceHB);
 
                     hurtReq = false;
                     fightReq = false;
@@ -284,9 +313,32 @@ public class Zombi extends MovingObject {
                 }
                 break;
 
+            case DEATH:
+                death.goNext();
+                float speed;
+
+                if (death.getFNo() < 12) {
+                    speed = dMotionSpeed1;
+                } else {
+                    speed = dMotionSpeed2;
+                }
+
+                if (getDirection() == Direction.RIGHT) {
+                    setX(getX() - speed);
+                } else if (getDirection() == Direction.LEFT) {
+                    setX(getX() + speed);
+
+                }
+
+                if (death.isFinshed()) {
+                    setCurrState(State.WALK_RIGHT);
+                    afterDeath.afterDeath(this);
+                }
+                break;
+
             case FIGHT:
                 fighting.goNext();
-                Direction d = getDirection();
+
                 int FNo = fighting.getIntFNo();
                 if (6 <= FNo && FNo <= 9) {
 
@@ -298,16 +350,18 @@ public class Zombi extends MovingObject {
                     attcking = false;
                     getHitBoxList().remove(handHB);
                 }
+                Direction d = getDirection();
                 if (d == Direction.RIGHT) {
                     setX(initX + fightMotion[fighting.getIntFNo()]);
                 } else if (d == Direction.LEFT) {
                     setX(initX - fightMotion[fighting.getIntFNo()]);
                 }
 
-                if (nextState == State.HURT) {
+                if (nextState == State.HURT || nextState == State.DEATH) {
                     fightReq = false;
                     getHitBoxList().remove(handHB);
                     setCurrState(nextState);
+
                 } else if (fighting.isFinshed()) {
 
                     fightReq = false;
@@ -331,10 +385,16 @@ public class Zombi extends MovingObject {
 
     private void setCurrState(State state) {
         switch (state) {
+            case DEATH:
+                currAnima = death;
+                getHitBoxList().remove(faceHB);
+
+                break;
             case HURT:
                 currAnima = hurting;
                 initX = getX();
-                health.setValue(health.getValue() - 20);
+                getHitBoxList().remove(faceHB);
+
                 break;
             case FIGHT:
                 if (this.getCenterX() < stickMan.getCenterX()) {
@@ -368,11 +428,12 @@ public class Zombi extends MovingObject {
     @Override
     public String toString() {
         return "Zombi #" + objNo;
+
     }
 
     public static enum State {
         WALK_LEFT, WALK_RIGHT,
-        FIGHT, HURT
+        FIGHT, HURT, DEATH
 
     }
 

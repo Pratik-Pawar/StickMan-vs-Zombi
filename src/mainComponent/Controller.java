@@ -37,7 +37,6 @@ public class Controller implements Runnable {
     private int fps = 60;
     private StickMan stickMan;
     private SliderControl fpsMeter;
-    private Zombi zombi;
     private List gameObjectList;
     private List movingObjectList;
     private List<StaticObject> staticObjectsList;
@@ -45,12 +44,17 @@ public class Controller implements Runnable {
     private JCheckBox collisionDetectionCheckBox,
             drawCollisionBoxCheckBox, pauseGame;
     private JButton collisionButton, next;
+    private AfterDeath zombiAfterDeath;
 
     public Controller() {
 
         gameMainFrame = new GameMainFrame(width, height);
         drawCollisionBoxCheckBox = new JCheckBox("Draw Collision Box");
         drawCollisionBoxCheckBox.setSelected(false);
+
+        zombiAfterDeath = (zombi) -> {
+            zombiList.remove((Zombi) zombi);
+        };
 
         pauseGame = new JCheckBox("Pause Game");
         next = new JButton("Next");
@@ -102,11 +106,25 @@ public class Controller implements Runnable {
         movingObjectList.add(stickMan);
         movingObjectList.add(zombiList);
 
-        zombiList.add(new Zombi(Direction.RIGHT, 0, height - 230, stickMan));
-        zombiList.add(new Zombi(Direction.LEFT, 0, height - 230, stickMan));
-        zombiList.add(new Zombi(Direction.LEFT, 300, height - 230, stickMan));
-        zombiList.add(new Zombi(Direction.RIGHT, 800, height - 230, stickMan));
-        zombiList.add(new Zombi(Direction.RIGHT, 200, height - 230, stickMan));
+        Zombi z = new Zombi(Direction.RIGHT, 0, height - 230, stickMan);
+        z.setAfterDeath(zombiAfterDeath);
+        zombiList.add(z);
+
+        z = new Zombi(Direction.LEFT, 0, height - 230, stickMan);
+        z.setAfterDeath(zombiAfterDeath);
+        zombiList.add(z);
+
+        z = new Zombi(Direction.LEFT, 300, height - 230, stickMan);
+        z.setAfterDeath(zombiAfterDeath);
+        zombiList.add(z);
+
+        z = new Zombi(Direction.RIGHT, 800, height - 230, stickMan);
+        z.setAfterDeath(zombiAfterDeath);
+        zombiList.add(z);
+
+        z = new Zombi(Direction.RIGHT, 200, height - 230, stickMan);
+        z.setAfterDeath(zombiAfterDeath);
+        zombiList.add(z);
 
         staticObjectsList.add(new Solid(0, 0, 30, 700, new Color(0, 0, 0, 50)));
         staticObjectsList.add(new Solid(1080, 0, 30, 700, new Color(0, 0, 0, 50)));

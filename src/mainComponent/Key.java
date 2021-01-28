@@ -14,7 +14,7 @@ import java.awt.event.KeyListener;
  */
 public class Key implements KeyListener {
 
-    public static boolean left, right, up, down, esc, space, a, s, d, w, ctrl, alt;
+    public static boolean left, right, up, down, esc, space, a, s, d, w, ctrl, alt, shift;
 
     @Override
     public void keyPressed(KeyEvent evt) {
@@ -61,6 +61,9 @@ public class Key implements KeyListener {
             case KeyEvent.VK_ALT:
                 alt = true;
                 break;
+            case KeyEvent.VK_SHIFT:
+                shift = true;
+                break;
 
         }
     }
@@ -104,6 +107,9 @@ public class Key implements KeyListener {
                 break;
             case KeyEvent.VK_ALT:
                 alt = false;
+                break;
+            case KeyEvent.VK_SHIFT:
+                shift = false;
                 break;
 
         }
