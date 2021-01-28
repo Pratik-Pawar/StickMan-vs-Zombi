@@ -1,7 +1,3 @@
-/*
- * Change bu lenovo
-added by HP
- */
 package GameEntity;
 
 import GameEntity.Animations.DirectionalAnimation;
