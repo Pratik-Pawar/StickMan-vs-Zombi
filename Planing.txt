@@ -1,0 +1,76 @@
+ º•
+ Status __________________  Task List  _____________________________________  Estimated Time In Hr:Min  _______  Pratical Time  ____________
+
+	•	1.	Wall Collision	- - - - - - - - - - - - - - - - - - - - - - - - - -	00:40 -> -> -> -> -> -> -> -> ->  01:00
+	•	2.	New Mechanism for collision detection - - - - - - - - - - - - - - - 02:30 -> -> -> -> -> -> -> -> ->  04:30
+			of multiple collision box
+	•	3.	Zombi and Stickman Collision - - - - - - - - - - - - - - - - - - -	15:00
+						|															^
+			•	1.	StickMan Attact and Zombi Detactaion for Attact - - - - - - -	00:40 -> -> -> -> -> -> -> -> ->  1:15
+			•	2.	Zombi Damage - - - - - - - - - - - - - - - - - - - - - - - - -	10:20 -> -> -> -> -> -> -> -> ->  10:25
+							|															^
+					•	1.	Animation - - - - - - - - - - - - - - - - - - - - - - - - 	05:20 -> -> -> -> -> -> -> -> ->  5:10
+								|															^ 								 ^
+						•	1.	Research - - - - - - - - - - - - - - - - - - - - - - - - -	00:40 -> -> -> -> -> -> -> -> -> 00:40
+						•	2.	Rough Sketch - - - - - - - - - - - - - - - - - - - - - - -	00:40 -> -> -> -> -> -> -> -> -> 00:15
+						•	3.	Animation in software - - - - - - - - - - - - - - - - - - 	04:00 -> -> -> -> -> -> -> -> -> 04:15
+
+					•	2.	Coding - - - - - - - - - - - - - - - - - - - - - - - - - - 	05:00 -> -> -> -> -> -> -> -> -> 5:15
+								|															^								 ^
+						•	1.	Creating new State Mechanism for - - - - - - - - - - - -	02:30 -> -> -> -> -> -> -> -> -> 01:00 
+								old states (goLeft,goRight)
+						•	2.	Adding state 'Damage' - - - - - - - - - - - - - - - - - -	02:30 -> -> -> -> -> -> -> -> -> 02:35    
+						•	3.	Zombi And StickMan Fully body collision - - - - - - - - -   02:00 -> -> -> -> -> -> -> -> -> 01:40
+						
+			•	3.	Adding Zombi attack animation and creating attack trigger - - 	02:30 -> -> -> -> -> -> -> -> -> 02:00
+			•	4.	Zombi Attact and StickMan Detactaion for Attact - - - - - -		02:30 -> -> -> -> -> -> -> -> -> 03:00	
+			•	5.	StickMan Damage - - - - - - - - - - - - - - - - - - - - - - 	02:00
+							|															^
+					•	1.	Animation - - - - - - - - - - - - - - - - - - - - - 		03:30 -> -> -> -> -> -> -> -> -> 2:15	
+
+					•	2.	Coding - - - - - - - - - - - - - - - - - - - - - -			01:30 -> -> -> -> -> -> -> -> -> 1:15
+
+				
+	º	4.	Health Calculction and Death		
+						|
+			•	1.	Creating HealthBar class - - - - - - - - - - - - - - - - - - - 		01:20
+			•	2.	Appling to StickMan - - - - - - - - - - - - - - - - - - - - - -		00:20
+			•	3.	Appling to Zombi - - - - - - - - - - - - - - - - - - - - - -		00:30
+			º	4.	Zombi Death
+							|
+					•	1.	Animation
+						2.  Code
+				5.	StickMan Death
+							|
+						1.	Animation
+						2.  Code
+			
+
+
+		5.	Stickman Jump
+						|
+				1.	Animation
+				2.	Gravity Simulaction Code
+				3.	Collision detectction Code
+				
+		6.	Design And Art
+						|
+				1.	Backdround
+				2.	Wall images
+				3.	Grass and other unplaned objects
+				
+		7.	Audio
+				|
+			1.	Code for embading animation with audio And trigger for audio
+			2.	Searching And trying Audio for various actions
+			3.	Backdround music creaction
+
+		8.	Infinite level loop
+					|
+			1.	Code for Calculating Score
+			2.	High Score Meter display
+			3.	Saving HighScore(File Handling)
+			4.	HighScore Effect code
+
+		9.	Title Screen
+			
