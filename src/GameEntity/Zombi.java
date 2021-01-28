@@ -11,7 +11,7 @@ import mainComponent.Key;
 
 /**
  *
- * @author Administrator
+ * @author Administrator test 3
  */
 public class Zombi extends MovingObject {
 
