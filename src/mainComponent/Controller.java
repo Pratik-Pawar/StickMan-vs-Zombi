@@ -113,7 +113,6 @@ public class Controller implements Runnable {
 //        z = new Zombi(Direction.LEFT, 0, height - 230, stickMan);
 //        z.setAfterDeath(zombiAfterDeath);
 //        zombiList.add(z);
-//
 //        z = new Zombi(Direction.LEFT, 300, height - 230, stickMan);
 //        z.setAfterDeath(zombiAfterDeath);
 //        zombiList.add(z);
