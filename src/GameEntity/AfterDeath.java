@@ -11,5 +11,5 @@ package GameEntity;
  */
 public interface AfterDeath {
 
-    public void afterDeath(GameObject self);
+    public void doAfterDeath(GameObject self);
 }

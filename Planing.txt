@@ -38,11 +38,11 @@
 			•	3.	Appling to Zombi - - - - - - - - - - - - - - - - - - - - - -		00:30
 			º	4.	Zombi Death
 							|
-					•	1.	Animation
-						2.  Code
+					•	1.	Animation  - - - - - - - - - - - - - - - - - - - - - -		
+					•	2.  Code  - - - - - - - - - - - - - - - - - - - - - -			
 				5.	StickMan Death
 							|
-						1.	Animation
+					•	1.	Animation
 						2.  Code
 			
 

@@ -328,7 +328,7 @@ public class Zombi extends MovingObject {
 
                 if (death.isFinshed()) {
                     setCurrState(State.WALK_RIGHT);
-                    afterDeath.afterDeath(this);
+                    afterDeath.doAfterDeath(this);
                 }
                 break;
 

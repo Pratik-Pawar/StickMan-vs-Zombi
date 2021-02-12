@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -106,26 +107,25 @@ public class Controller implements Runnable {
         movingObjectList.add(stickMan);
         movingObjectList.add(zombiList);
 
-        Zombi z = new Zombi(Direction.RIGHT, 0, height - 230, stickMan);
-        z.setAfterDeath(zombiAfterDeath);
-        zombiList.add(z);
-
-        z = new Zombi(Direction.LEFT, 0, height - 230, stickMan);
-        z.setAfterDeath(zombiAfterDeath);
-        zombiList.add(z);
-
-        z = new Zombi(Direction.LEFT, 300, height - 230, stickMan);
-        z.setAfterDeath(zombiAfterDeath);
-        zombiList.add(z);
-
-        z = new Zombi(Direction.RIGHT, 800, height - 230, stickMan);
-        z.setAfterDeath(zombiAfterDeath);
-        zombiList.add(z);
-
-        z = new Zombi(Direction.RIGHT, 200, height - 230, stickMan);
-        z.setAfterDeath(zombiAfterDeath);
-        zombiList.add(z);
-
+//        Zombi z = new Zombi(Direction.RIGHT, 0, height - 230, stickMan);
+//        z.setAfterDeath(zombiAfterDeath);
+//        zombiList.add(z);
+//
+//        z = new Zombi(Direction.LEFT, 0, height - 230, stickMan);
+//        z.setAfterDeath(zombiAfterDeath);
+//        zombiList.add(z);
+//
+//        z = new Zombi(Direction.LEFT, 300, height - 230, stickMan);
+//        z.setAfterDeath(zombiAfterDeath);
+//        zombiList.add(z);
+//
+//        z = new Zombi(Direction.RIGHT, 800, height - 230, stickMan);
+//        z.setAfterDeath(zombiAfterDeath);
+//        zombiList.add(z);
+//
+//        z = new Zombi(Direction.RIGHT, 200, height - 230, stickMan);
+//        z.setAfterDeath(zombiAfterDeath);
+//        zombiList.add(z);
         staticObjectsList.add(new Solid(0, 0, 30, 700, new Color(0, 0, 0, 50)));
         staticObjectsList.add(new Solid(1080, 0, 30, 700, new Color(0, 0, 0, 50)));
 
@@ -279,9 +279,8 @@ public class Controller implements Runnable {
 
     private void forEachGameObject(List list, Task task) {
         if (list != null) {
-
-            for (Object obj : list) {
-
+            for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                Object obj = iterator.next();
                 if (obj instanceof List) {
 
                     forEachGameObject((List) obj, task);
