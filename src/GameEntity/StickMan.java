@@ -5,12 +5,14 @@
  */
 package GameEntity;
 
+import GameEntity.Animations.Animation;
 import GameEntity.Animations.DirectionalAnimation;
 import GameEntity.Animations.STWalking;
 import static GameEntity.ID.STICK_MAN;
 import GameEntity.collisionDetection.HitBox;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.util.List;
 import mainComponent.Controls.SliderControl;
 import mainComponent.Key;
@@ -22,7 +24,7 @@ import mainComponent.Key;
 public class StickMan extends MovingObject {
 
     private STWalking walking;
-    private DirectionalAnimation fighting, currAnima, hurting, death;
+    private DirectionalAnimation fighting, currAnima, hurting, death, deadBody;
     private State currState;
     private boolean fightReq = false, hurtReq = false, deathReq = false;
     private HitBox handHB, fullBodyHB, pushHB, faceHB;
@@ -51,6 +53,13 @@ public class StickMan extends MovingObject {
         fighting = new DirectionalAnimation(0.55f, "/Animaction/", "ST Fighting", 15, Direction.RIGHT);
         hurting = new DirectionalAnimation(1.3f, "/Animaction/", "ST Hurting", 25, Direction.RIGHT);
         death = new DirectionalAnimation(0.5f, "/Animaction/", "ST Death", 100, Direction.RIGHT);
+        deadBody = new DirectionalAnimation(1.0f, "ST Death", Direction.LEFT) {
+            @Override
+            public Image getFrame() {
+                return currFrames[currFrames.length - 1];
+            }
+
+        };
         currAnima = walking;
 
         setX(x);
@@ -122,6 +131,12 @@ public class StickMan extends MovingObject {
                     }
                 } else {
                     setCurrState(nextState);
+                    if (attcking) {
+                        getHitBoxList().remove(handHB);
+                        fightReq = false;
+                        attcking = false;
+                    }
+
                 }
                 break;
             case Walk_Left:
@@ -173,16 +188,22 @@ public class StickMan extends MovingObject {
                             setX(getX() - diff * dMotionSpeed);
                         }
 
+                        if (death.getIntFNo() == 32) {
+                            getHitBoxList().remove(fullBodyHB);
+                        }
+
                         prvFNo = death.getIntFNo();
                     }
                 }
 
                 if (death.isFinshed()) {
-                    setCurrState(State.Walk_Right);
+                    setCurrState(State.DeadBody);
                     deathReq = false;
                 }
                 break;
 
+            case DeadBody:
+                break;
             case Rest:
                 setCurrState(nextState);
                 break;
@@ -241,12 +262,15 @@ public class StickMan extends MovingObject {
             case Hurt:
                 currAnima = hurting;
                 getHitBoxList().remove(faceHB);
-
                 break;
             case Death:
                 currAnima = death;
                 prvFNo = 17;
                 getHitBoxList().remove(faceHB);
+                getHitBoxList().remove(pushHB);
+                break;
+            case DeadBody:
+                currAnima = deadBody;
                 break;
 
         }
@@ -268,6 +292,7 @@ public class StickMan extends MovingObject {
             walking.setDirection(newDirection);
             hurting.setDirection(newDirection);
             death.setDirection(newDirection);
+            deadBody.setDirection(newDirection);
         }
     }
 
@@ -359,7 +384,7 @@ public class StickMan extends MovingObject {
 
     private static enum State {
         Rest, Walk_Left, Walk_Right,
-        Fight, Hurt, Death
+        Fight, Hurt, Death, DeadBody
     }
 
 }
