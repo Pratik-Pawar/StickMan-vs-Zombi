@@ -27,10 +27,11 @@ public class StickMan extends MovingObject {
     private boolean fightReq = false, hurtReq = false, deathReq = false;
     private HitBox handHB, fullBodyHB, pushHB, faceHB;
     private boolean attcking;
-    private static final int DAMAGE = 5;
+    private static final int DAMAGE = 20;
     private float Z_PUSH_FORCE = 0.13f;
     private HealthBar health;
-    private float dMotionSpeed = 10f, initX;
+    private float dMotionSpeed = 10.7f;
+    private int prvFNo;
 
     public StickMan(int x, int y) {
         super(3.3f, Direction.RIGHT, x, y, STICK_MAN);
@@ -164,13 +165,18 @@ public class StickMan extends MovingObject {
 
                 death.goNext();
                 if (17 < death.getIntFNo() && death.getIntFNo() < 33) {
+                    if (death.getIntFNo() != prvFNo) {
+                        int diff = death.getIntFNo() - prvFNo;
+                        if (getDirection() == Direction.RIGHT) {
+                            setX(getX() + diff * dMotionSpeed);
+                        } else if (getDirection() == Direction.LEFT) {
+                            setX(getX() - diff * dMotionSpeed);
+                        }
 
-                    if (getDirection() == Direction.RIGHT) {
-                        setX(getX() + dMotionSpeed);
-                    } else if (getDirection() == Direction.LEFT) {
-                        setX(getX() - dMotionSpeed);
+                        prvFNo = death.getIntFNo();
                     }
                 }
+
                 if (death.isFinshed()) {
                     setCurrState(State.Walk_Right);
                     deathReq = false;
@@ -239,7 +245,8 @@ public class StickMan extends MovingObject {
                 break;
             case Death:
                 currAnima = death;
-
+                prvFNo = 17;
+                getHitBoxList().remove(faceHB);
                 break;
 
         }
@@ -260,6 +267,7 @@ public class StickMan extends MovingObject {
             fighting.setDirection(newDirection);
             walking.setDirection(newDirection);
             hurting.setDirection(newDirection);
+            death.setDirection(newDirection);
         }
     }
 

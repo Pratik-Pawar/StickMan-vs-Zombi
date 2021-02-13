@@ -45,17 +45,12 @@ public class Controller implements Runnable {
     private JCheckBox collisionDetectionCheckBox,
             drawCollisionBoxCheckBox, pauseGame;
     private JButton collisionButton, next;
-    private AfterDeath zombiAfterDeath;
 
     public Controller() {
 
         gameMainFrame = new GameMainFrame(width, height);
         drawCollisionBoxCheckBox = new JCheckBox("Draw Collision Box");
         drawCollisionBoxCheckBox.setSelected(false);
-
-        zombiAfterDeath = (zombi) -> {
-            zombiList.remove((Zombi) zombi);
-        };
 
         pauseGame = new JCheckBox("Pause Game");
         next = new JButton("Next");
@@ -107,23 +102,18 @@ public class Controller implements Runnable {
         movingObjectList.add(stickMan);
         movingObjectList.add(zombiList);
 
-//        Zombi z = new Zombi(Direction.RIGHT, 0, height - 230, stickMan);
-//        z.setAfterDeath(zombiAfterDeath);
-//        zombiList.add(z);
-//        z = new Zombi(Direction.LEFT, 0, height - 230, stickMan);
-//        z.setAfterDeath(zombiAfterDeath);
-//        zombiList.add(z);
-//        z = new Zombi(Direction.LEFT, 300, height - 230, stickMan);
-//        z.setAfterDeath(zombiAfterDeath);
-//        zombiList.add(z);
-//
-//        z = new Zombi(Direction.RIGHT, 800, height - 230, stickMan);
-//        z.setAfterDeath(zombiAfterDeath);
-//        zombiList.add(z);
-//
-//        z = new Zombi(Direction.RIGHT, 200, height - 230, stickMan);
-//        z.setAfterDeath(zombiAfterDeath);
-//        zombiList.add(z);
+        Zombi z = new Zombi(Direction.RIGHT, 0, height - 230, stickMan);
+        zombiList.add(z);
+        z = new Zombi(Direction.LEFT, 0, height - 230, stickMan);
+        zombiList.add(z);
+        z = new Zombi(Direction.LEFT, 300, height - 230, stickMan);
+        zombiList.add(z);
+
+        z = new Zombi(Direction.RIGHT, 800, height - 230, stickMan);
+        zombiList.add(z);
+
+        z = new Zombi(Direction.RIGHT, 200, height - 230, stickMan);
+        zombiList.add(z);
         staticObjectsList.add(new Solid(0, 0, 30, 700, new Color(0, 0, 0, 50)));
         staticObjectsList.add(new Solid(1080, 0, 30, 700, new Color(0, 0, 0, 50)));
 
@@ -212,7 +202,7 @@ public class Controller implements Runnable {
         drawHitBox(g);
 
         //drawind all GameObject from gameObjectList
-        forEachGameObject(gameObjectList, (obj) -> {
+        forEachGameObject(gameObjectList, (obj, itr) -> {
             obj.render(g);
         });
         // drawing lines
@@ -236,8 +226,11 @@ public class Controller implements Runnable {
         if (Key.esc) {
             System.exit(0);
         }
-        forEachGameObject(gameObjectList, (obj) -> {
+        forEachGameObject(gameObjectList, (obj, itr) -> {
             obj.update();
+            if (obj.deleteMe()) {
+                itr.remove();
+            }
         });
         if (!collisionDetectionCheckBox.isSelected()) {
             collisionDetection();
@@ -251,13 +244,14 @@ public class Controller implements Runnable {
     }
 
     private void collisionDetection() {
-        forEachGameObject(movingObjectList, (mainObj) -> {
+        forEachGameObject(movingObjectList, (mainObj, mainItr) -> {
 
-            forEachGameObject(gameObjectList, (colliderObj) -> {
+            forEachGameObject(gameObjectList, (colliderObj, colliderItr) -> {
                 if (mainObj != colliderObj) {
                     for (HitBox mainHitBox : mainObj.getHitBoxList()) {
                         for (HitBox colliderHitBox : colliderObj.getHitBoxList()) {
                             mainHitBox.collisionDetection(colliderHitBox);
+
                         }
                     }
                 }
@@ -267,7 +261,7 @@ public class Controller implements Runnable {
 
     private void drawHitBox(Graphics g) {
         if (drawCollisionBoxCheckBox.isSelected()) {
-            forEachGameObject(gameObjectList, (gameObject) -> {
+            forEachGameObject(gameObjectList, (gameObject, itr) -> {
                 gameObject.getHitBoxList().forEach((t) -> {
                     t.render(g);
                 });
@@ -280,11 +274,10 @@ public class Controller implements Runnable {
             for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                 Object obj = iterator.next();
                 if (obj instanceof List) {
-
                     forEachGameObject((List) obj, task);
                 } else if (obj instanceof GameObject) {
 
-                    task.performTask((GameObject) obj);
+                    task.performTask((GameObject) obj, iterator);
                 }
 
             }
@@ -307,7 +300,7 @@ public class Controller implements Runnable {
 
     private interface Task {
 
-        public void performTask(GameObject gameObject);
+        public void performTask(GameObject gameObject, Iterator iter);
     }
 
 }

@@ -34,7 +34,6 @@ public class Zombi extends MovingObject {
     private static final int DAMAGE = 25;
     private float dMotionSpeed1 = 3.0f;
     private float dMotionSpeed2 = 0.3f;
-    private AfterDeath afterDeath;
     private HealthBar health;
     private int healthRX, healthLX;
 
@@ -96,10 +95,6 @@ public class Zombi extends MovingObject {
         xControl.SetChangeListener((source, newValue) -> {
             setX(newValue);
         });
-    }
-
-    public void setAfterDeath(AfterDeath afterDeath) {
-        this.afterDeath = afterDeath;
     }
 
     @Override
@@ -328,7 +323,7 @@ public class Zombi extends MovingObject {
 
                 if (death.isFinshed()) {
                     setCurrState(State.WALK_RIGHT);
-                    afterDeath.doAfterDeath(this);
+                    setDeleteMe(true);
                 }
                 break;
 

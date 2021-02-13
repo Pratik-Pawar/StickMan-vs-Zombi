@@ -21,6 +21,7 @@ public abstract class GameObject {
     private int height;
     private List<HitBox> hitBoxList;
     private ID id;
+    private boolean deleteMe = false;
 
     public GameObject(float x, float y, ID id) {
         this.id = id;
@@ -88,6 +89,14 @@ public abstract class GameObject {
 
     void setHitBoxList(List<HitBox> hitBoxList) {
         this.hitBoxList = hitBoxList;
+    }
+
+    public boolean deleteMe() {
+        return deleteMe;
+    }
+
+    protected void setDeleteMe(boolean deleteMe) {
+        this.deleteMe = deleteMe;
     }
 
 }
