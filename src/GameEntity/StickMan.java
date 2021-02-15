@@ -5,7 +5,6 @@
  */
 package GameEntity;
 
-import GameEntity.Animations.Animation;
 import GameEntity.Animations.DirectionalAnimation;
 import GameEntity.Animations.STWalking;
 import static GameEntity.ID.STICK_MAN;
@@ -34,6 +33,7 @@ public class StickMan extends MovingObject {
     private HealthBar health;
     private float dMotionSpeed = 10.7f;
     private int prvFNo;
+    private float baseY, jumpV = -10f, currV = 0f, grvAcc = 1f;
 
     public StickMan(int x, int y) {
         super(3.3f, Direction.RIGHT, x, y, STICK_MAN);
@@ -47,6 +47,14 @@ public class StickMan extends MovingObject {
         SliderControl.createAndShow("dMotionSpeed", dMotionSpeed, -15, 15, 0.1f).
                 SetChangeListener((source, newValue) -> {
                     dMotionSpeed = newValue;
+                });
+        SliderControl.createAndShow("jumpV", jumpV, -50, 0, 0.1f).
+                SetChangeListener((source, newValue) -> {
+                    jumpV = newValue;
+                });
+        SliderControl.createAndShow("grvAcc", grvAcc, 0, 20, 0.1f).
+                SetChangeListener((source, newValue) -> {
+                    grvAcc = newValue;
                 });
 
         walking = new STWalking();
@@ -64,12 +72,13 @@ public class StickMan extends MovingObject {
 
         setX(x);
         setY(y);
+        baseY = y;
         setWidth(walking.getWidth());
         setHeight(walking.getHeight());
 
         initHitBox();
 
-        setCurrState(State.Rest);
+        setCurrState(State.REST);
 
         setSpeed(1.0f);
         SliderControl.createAndShow("Z_PUSH_FORCE", Z_PUSH_FORCE, -0.5f, 2f, 0.01f)
@@ -108,8 +117,8 @@ public class StickMan extends MovingObject {
         State nextState = getNextState();
         switch (currState) {
 
-            case Fight:
-                if (nextState == State.Fight) {
+            case FIGHT:
+                if (nextState == State.FIGHT) {
                     fighting.goNext();
                     if (7.5 <= fighting.getFNo() && fighting.getFNo() <= 12) {
                         if (!attcking) {
@@ -125,7 +134,7 @@ public class StickMan extends MovingObject {
                     }
 
                     if (fighting.isFinshed()) {
-                        setCurrState(State.Rest);
+                        setCurrState(State.REST);
                         fightReq = false;
                         attcking = false;
                     }
@@ -139,26 +148,26 @@ public class StickMan extends MovingObject {
 
                 }
                 break;
-            case Walk_Left:
-                if (nextState == State.Rest) {
+            case WALK_LEFT:
+                if (nextState == State.REST) {
                     walking.reset();
                     if (walking.isFinshed()) {
-                        setCurrState(State.Rest);
+                        setCurrState(State.REST);
                     }
-                } else if (nextState == State.Walk_Left) {
+                } else if (nextState == State.WALK_LEFT) {
                     walking.goNext();
                     setX(getX() - motationSpeed);
                 } else {
                     setCurrState(nextState);
                 }
                 break;
-            case Walk_Right:
-                if (nextState == State.Rest) {
+            case WALK_RIGHT:
+                if (nextState == State.REST) {
                     walking.reset();
                     if (walking.isFinshed()) {
-                        setCurrState(State.Rest);
+                        setCurrState(State.REST);
                     }
-                } else if (nextState == State.Walk_Right) {
+                } else if (nextState == State.WALK_RIGHT) {
                     walking.goNext();
                     setX(getX() + motationSpeed);
                 } else {
@@ -166,17 +175,41 @@ public class StickMan extends MovingObject {
                 }
                 break;
 
-            case Hurt:
+            case JUMP:
+                System.out.println("Jumping");
+                currV = jumpV;
+                setCurrState(State.IN_AIR);
+                System.out.println(baseY + " " + getY() + " " + currV + " " + grvAcc);
+                break;
+
+            case IN_AIR:
+                System.out.println("In-air");
+                System.out.println("Y:" + getY());
+                setY(getY() + currV + grvAcc);
+                currV = currV + grvAcc;
+                if (getY() >= baseY) {
+                    setCurrState(State.LAND);
+                    setY(baseY);
+                }
+                break;
+
+            case LAND:
+                System.out.println("Landing");
+                setCurrState(State.REST);
+
+                break;
+
+            case HURT:
                 hurting.goNext();
                 if (hurting.isFinshed()) {
-                    setCurrState(State.Rest);
+                    setCurrState(State.REST);
                     fightReq = false;
                     hurtReq = false;
                     getHitBoxList().add(faceHB);
                 }
                 break;
 
-            case Death:
+            case DEATH:
 
                 death.goNext();
                 if (17 < death.getIntFNo() && death.getIntFNo() < 33) {
@@ -197,14 +230,14 @@ public class StickMan extends MovingObject {
                 }
 
                 if (death.isFinshed()) {
-                    setCurrState(State.DeadBody);
+                    setCurrState(State.DEAD_BODY);
                     deathReq = false;
                 }
                 break;
 
-            case DeadBody:
+            case DEAD_BODY:
                 break;
-            case Rest:
+            case REST:
                 setCurrState(nextState);
                 break;
             //Rest end
@@ -215,11 +248,11 @@ public class StickMan extends MovingObject {
     private State getNextState() {
 
         if (deathReq || Key.ctrl) {
-            return State.Death;
+            return State.DEATH;
         }
         if (hurtReq) {
 
-            return State.Hurt;
+            return State.HURT;
         }
 
         if (Key.space) {
@@ -227,49 +260,53 @@ public class StickMan extends MovingObject {
         }
 
         if (fightReq) {
-            if (currState == State.Walk_Left || currState == State.Walk_Right) {
-                return State.Rest;
+            if (currState == State.WALK_LEFT || currState == State.WALK_RIGHT) {
+                return State.REST;
             }
-            return State.Fight;
+            return State.FIGHT;
+        }
+
+        if (Key.up) {
+            return State.JUMP;
         }
 
         if (Key.right) {
-            return State.Walk_Right;
+            return State.WALK_RIGHT;
         }
 
         if (Key.left) {
-            return State.Walk_Left;
+            return State.WALK_LEFT;
         }
 
-        return State.Rest;
+        return State.REST;
     }
 
     private void setCurrState(State state) {
         switch (state) {
-            case Fight:
+            case FIGHT:
                 currAnima = fighting;
                 break;
 
-            case Walk_Left:
+            case WALK_LEFT:
                 setDirection(Direction.LEFT);
                 break;
-            case Walk_Right:
+            case WALK_RIGHT:
                 setDirection(Direction.RIGHT);
                 break;
-            case Rest:
+            case REST:
                 currAnima = walking;
                 break;
-            case Hurt:
+            case HURT:
                 currAnima = hurting;
                 getHitBoxList().remove(faceHB);
                 break;
-            case Death:
+            case DEATH:
                 currAnima = death;
                 prvFNo = 17;
                 getHitBoxList().remove(faceHB);
                 getHitBoxList().remove(pushHB);
                 break;
-            case DeadBody:
+            case DEAD_BODY:
                 currAnima = deadBody;
                 break;
 
@@ -313,7 +350,7 @@ public class StickMan extends MovingObject {
                 } else if (d == Direction.LEFT) {
                     setX(collider.getGlobalX() - fullBodyHB.getX_());
                 }
-                if (currState == State.Walk_Left || currState == State.Walk_Right) {
+                if (currState == State.WALK_LEFT || currState == State.WALK_RIGHT) {
                     walking.goPrevius();
                     walking.goRest();
                 }
@@ -336,7 +373,7 @@ public class StickMan extends MovingObject {
                         int diff = collider.getGlobalX_() - pushHB.getGlobalX();
                         setX(getX() + diff * Z_PUSH_FORCE);
                     }
-                    if (currState == State.Walk_Left || currState == State.Walk_Right) {
+                    if (currState == State.WALK_LEFT || currState == State.WALK_RIGHT) {
                         float newspeed = (Math.abs(oldX - getX())) / motationSpeed;
                         float oldSpeed = walking.getAnimeSpeed();
                         walking.setAnimeSpeed(newspeed);
@@ -383,8 +420,9 @@ public class StickMan extends MovingObject {
     }
 
     private static enum State {
-        Rest, Walk_Left, Walk_Right,
-        Fight, Hurt, Death, DeadBody
+        REST, WALK_LEFT, WALK_RIGHT,
+        JUMP, IN_AIR, LAND,
+        FIGHT, HURT, DEATH, DEAD_BODY
     }
 
 }

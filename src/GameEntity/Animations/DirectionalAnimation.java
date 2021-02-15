@@ -26,7 +26,7 @@ public class DirectionalAnimation extends Animation implements ChangeListener {
     //BufferedImage[0][i] -> RightFrames
     //BufferedImage[1][i] -> LeftFrames
     private static HashMap<String, BufferedImage[][]> frameMap = new HashMap<>();
-    private BufferedImage rightFrames[], leftFrames[], currFrames[];
+    protected BufferedImage rightFrames[], leftFrames[], currFrames[];
     private int width, height;
 
     private float FNo, privFNo;

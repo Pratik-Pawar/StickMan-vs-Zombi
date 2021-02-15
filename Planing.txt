@@ -49,9 +49,8 @@
 
 		5.	Stickman Jump
 						|
-				1.	Animation
-				2.	Gravity Simulaction Code
-				3.	Collision detectction Code
+			•	1.	Gravity Motion Code
+				2.	Animation
 				
 		6.	Design And Art
 						|
