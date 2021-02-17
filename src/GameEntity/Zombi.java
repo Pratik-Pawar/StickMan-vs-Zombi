@@ -118,7 +118,7 @@ public class Zombi extends MovingObject {
 
         faceHB = new HitBox("Face", 127, 32, 71, 56, this);
         fullBodyHB = new HitBox("Full_Body", 72, 32, 136, 195, this);
-        pushHB = new HitBox("Push", 108, 32, 87, 195, this);
+        pushHB = new HitBox("Push", 108, 98, 45, 195, this);
         handHB = new HitBox("Hand", 151, 23, 64, 133, this);
 
         fullBodyHB.setTrigger((collider) -> {

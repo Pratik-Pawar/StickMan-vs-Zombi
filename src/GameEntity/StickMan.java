@@ -23,23 +23,22 @@ import mainComponent.Key;
 public class StickMan extends MovingObject {
 
     private STWalking walking;
-    private DirectionalAnimation fighting, currAnima, hurting, death, deadBody;
+    private DirectionalAnimation currAnima, fighting, hurting, death, deadBody, jumping, inAir, landing;
     private State currState;
-    private boolean fightReq = false, hurtReq = false, deathReq = false;
+    private boolean hurtReq = false, deathReq = false;
     private HitBox handHB, fullBodyHB, pushHB, faceHB;
     private boolean attcking;
-    private static final int DAMAGE = 20;
+    private static final int DAMAGE = 10;
     private float Z_PUSH_FORCE = 0.13f;
     private HealthBar health;
     private float dMotionSpeed = 10.7f;
     private int prvFNo;
-    private float baseY, jumpV = -10f, currV = 0f, grvAcc = 1f;
+    private float baseY, jumpV = -20f, currV = 0f, grvAcc = 0.8f;
 
     public StickMan(int x, int y) {
         super(3.3f, Direction.RIGHT, x, y, STICK_MAN);
 
         this.attcking = false;
-        this.fightReq = false;
 
         health = new HealthBar(300, 30, 400, 25, 3, 100,
                 new Color(20, 20, 200));
@@ -61,7 +60,11 @@ public class StickMan extends MovingObject {
         fighting = new DirectionalAnimation(0.55f, "/Animaction/", "ST Fighting", 15, Direction.RIGHT);
         hurting = new DirectionalAnimation(1.3f, "/Animaction/", "ST Hurting", 25, Direction.RIGHT);
         death = new DirectionalAnimation(0.5f, "/Animaction/", "ST Death", 100, Direction.RIGHT);
+        jumping = new DirectionalAnimation(0.5f, "/Animaction/", "ST Jump", 6, Direction.RIGHT);
+        inAir = new DirectionalAnimation(0.5f, "/Animaction/", "ST In Air", 18, Direction.RIGHT);
+        landing = new DirectionalAnimation(0.5f, "/Animaction/", "ST Landing", 6, Direction.RIGHT);
         deadBody = new DirectionalAnimation(1.0f, "ST Death", Direction.LEFT) {
+
             @Override
             public Image getFrame() {
                 return currFrames[currFrames.length - 1];
@@ -135,14 +138,12 @@ public class StickMan extends MovingObject {
 
                     if (fighting.isFinshed()) {
                         setCurrState(State.REST);
-                        fightReq = false;
                         attcking = false;
                     }
                 } else {
                     setCurrState(nextState);
                     if (attcking) {
                         getHitBoxList().remove(handHB);
-                        fightReq = false;
                         attcking = false;
                     }
 
@@ -150,7 +151,7 @@ public class StickMan extends MovingObject {
                 break;
             case WALK_LEFT:
                 if (nextState == State.REST) {
-                    walking.reset();
+                    walking.goRest();
                     if (walking.isFinshed()) {
                         setCurrState(State.REST);
                     }
@@ -163,7 +164,7 @@ public class StickMan extends MovingObject {
                 break;
             case WALK_RIGHT:
                 if (nextState == State.REST) {
-                    walking.reset();
+                    walking.goRest();
                     if (walking.isFinshed()) {
                         setCurrState(State.REST);
                     }
@@ -176,26 +177,67 @@ public class StickMan extends MovingObject {
                 break;
 
             case JUMP:
-                System.out.println("Jumping");
-                currV = jumpV;
-                setCurrState(State.IN_AIR);
-                System.out.println(baseY + " " + getY() + " " + currV + " " + grvAcc);
+
+                if (nextState == State.JUMP) {
+                    jumping.goNext();
+
+                    if (Key.left) {
+                        setX(getX() - motationSpeed);
+                        setDirection(Direction.LEFT);
+                    } else if (Key.right) {
+                        setX(getX() + motationSpeed);
+                        setDirection(Direction.RIGHT);
+                    }
+
+                    if (jumping.isFinshed()) {
+                        currV = jumpV;
+                        setCurrState(State.IN_AIR);
+                        System.out.println(baseY + " " + getY() + " " + currV + " " + grvAcc);
+                    }
+                } else {
+                    setCurrState(nextState);
+                }
                 break;
 
             case IN_AIR:
-                System.out.println("In-air");
-                System.out.println("Y:" + getY());
+                inAir.goNext();
+
+                if (Key.left) {
+                    setX(getX() - motationSpeed);
+                    setDirection(Direction.LEFT);
+                } else if (Key.right) {
+                    setX(getX() + motationSpeed);
+                    setDirection(Direction.RIGHT);
+                }
+
                 setY(getY() + currV + grvAcc);
                 currV = currV + grvAcc;
                 if (getY() >= baseY) {
                     setCurrState(State.LAND);
+                    getHitBoxList().add(faceHB);
                     setY(baseY);
                 }
                 break;
 
             case LAND:
-                System.out.println("Landing");
-                setCurrState(State.REST);
+
+                if (nextState == State.LAND) {
+                    landing.goNext();
+
+                    if (Key.left) {
+                        setX(getX() - motationSpeed);
+                        setDirection(Direction.LEFT);
+                    } else if (Key.right) {
+                        setX(getX() + motationSpeed);
+                        setDirection(Direction.RIGHT);
+                    }
+
+                    if (landing.isFinshed()) {
+                        setCurrState(State.REST);
+                    }
+                } else {
+                    setCurrState(nextState);
+                }
 
                 break;
 
@@ -203,7 +245,6 @@ public class StickMan extends MovingObject {
                 hurting.goNext();
                 if (hurting.isFinshed()) {
                     setCurrState(State.REST);
-                    fightReq = false;
                     hurtReq = false;
                     getHitBoxList().add(faceHB);
                 }
@@ -247,7 +288,7 @@ public class StickMan extends MovingObject {
 
     private State getNextState() {
 
-        if (deathReq || Key.ctrl) {
+        if (deathReq) {
             return State.DEATH;
         }
         if (hurtReq) {
@@ -255,19 +296,16 @@ public class StickMan extends MovingObject {
             return State.HURT;
         }
 
-        if (Key.space) {
-            fightReq = true;
-        }
-
-        if (fightReq) {
-            if (currState == State.WALK_LEFT || currState == State.WALK_RIGHT) {
-                return State.REST;
-            }
-            return State.FIGHT;
-        }
-
         if (Key.up) {
             return State.JUMP;
+        }
+
+        if (currState == State.JUMP || currState == State.LAND) {
+            return currState;
+        }
+
+        if (Key.space || currState == State.FIGHT) {
+            return State.FIGHT;
         }
 
         if (Key.right) {
@@ -300,6 +338,21 @@ public class StickMan extends MovingObject {
                 currAnima = hurting;
                 getHitBoxList().remove(faceHB);
                 break;
+
+            case JUMP:
+                currAnima = jumping;
+
+                break;
+
+            case IN_AIR:
+                getHitBoxList().remove(faceHB);
+                currAnima = inAir;
+                break;
+
+            case LAND:
+                currAnima = landing;
+                break;
+
             case DEATH:
                 currAnima = death;
                 prvFNo = 17;
@@ -328,6 +381,9 @@ public class StickMan extends MovingObject {
             fighting.setDirection(newDirection);
             walking.setDirection(newDirection);
             hurting.setDirection(newDirection);
+            jumping.setDirection(newDirection);
+            inAir.setDirection(newDirection);
+            landing.setDirection(newDirection);
             death.setDirection(newDirection);
             deadBody.setDirection(newDirection);
         }
@@ -356,9 +412,6 @@ public class StickMan extends MovingObject {
                 }
 
             }
-        });
-
-        handHB.setTrigger((collider) -> {
         });
 
         pushHB.setTrigger((collider) -> {
@@ -393,7 +446,6 @@ public class StickMan extends MovingObject {
                     } else {
                         hurtReq = true;
                     }
-                    setDirection(collider.getDireRelativeTo(faceHB));
                 }
             }
         });

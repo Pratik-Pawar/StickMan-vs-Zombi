@@ -104,9 +104,8 @@ public class Controller implements Runnable {
 
         Zombi z = new Zombi(Direction.RIGHT, 0, height - 230, stickMan);
         zombiList.add(z);
+
         z = new Zombi(Direction.LEFT, 0, height - 230, stickMan);
-        zombiList.add(z);
-        z = new Zombi(Direction.LEFT, 300, height - 230, stickMan);
         zombiList.add(z);
 
         z = new Zombi(Direction.RIGHT, 800, height - 230, stickMan);

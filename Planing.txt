@@ -50,7 +50,7 @@
 		5.	Stickman Jump
 						|
 			•	1.	Gravity Motion Code
-				2.	Animation
+			º	2.	Animation
 				
 		6.	Design And Art
 						|
